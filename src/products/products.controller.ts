@@ -71,7 +71,13 @@ export class ProductsController {
     if (pics) {
       updateProductDto.pics = pics.map((file) => file.buffer);
     }
-    return this.productService.editProduct(productId, updateProductDto, userId);
+    return this.productService.editProduct(
+      productId,
+      userId,
+      updateProductDto.title,
+      updateProductDto.description,
+      updateProductDto.price,
+    );
   }
 
   @UseGuards(AuthGuard)
@@ -84,7 +90,13 @@ export class ProductsController {
     @UploadedFiles(new ImageValidationPipe())
     pics: Array<Express.Multer.File> = [],
   ) {
-    return this.productService.createProduct(createProductDto, userId, pics);
+    return this.productService.createProduct(
+      createProductDto.title,
+      createProductDto.description,
+      createProductDto.price,
+      userId,
+      pics,
+    );
   }
 
   @Public()

@@ -5,8 +5,7 @@ import {
 } from '@nestjs/common';
 import { Product } from './product.entity';
 import { ILike, Repository } from 'typeorm';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { Decimal } from 'decimal.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from './comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -56,9 +55,14 @@ export class ProductsService {
 
   async editProduct(
     productId: number,
-    updateProductData: UpdateProductDto,
     userId: number,
+    title?: string,
+    description?: string,
+    price?: string,
   ) {
+    const atomicPrice = price
+      ? new Decimal(price).mul('1e12').toFixed(0)
+      : undefined;
     const result = await this.productRepository.update(
       {
         productId,
@@ -66,7 +70,11 @@ export class ProductsService {
           userId: userId,
         },
       },
-      updateProductData,
+      {
+        title,
+        description,
+        price: atomicPrice,
+      },
     );
     if (result.affected === 0) {
       throw new NotFoundException(`Product #${productId} not found`);
@@ -93,12 +101,18 @@ export class ProductsService {
   }
 
   async createProduct(
-    dto: CreateProductDto,
+    title: string,
+    description: string,
+    price: string,
     userId: number,
     pics: Array<Express.Multer.File>,
   ): Promise<Product> {
+    const atomicPrice = new Decimal(price).mul('1e12').toFixed(0);
+
     const product = this.productRepository.create({
-      ...dto,
+      title,
+      description,
+      price: atomicPrice,
       pics: pics.map((file) => file.buffer),
       seller: {
         userId: userId,

@@ -35,8 +35,8 @@ export class Product {
   @Column({ type: 'float', nullable: true })
   rate: number;
 
-  @Column('decimal')
-  price: number;
+  @Column({ type: 'bigint' })
+  price: string;
 
   @CreateDateColumn()
   @Index()

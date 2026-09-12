@@ -1,12 +1,10 @@
 import {
   IsString,
-  IsNumber,
-  Min,
   IsOptional,
   MinLength,
   MaxLength,
+  Matches,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class CreateProductDto {
   @IsString({ message: 'Title must be a string' })
@@ -22,8 +20,10 @@ export class CreateProductDto {
   @IsOptional()
   pics?: Buffer[];
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Price must be a number' })
-  @Min(0, { message: 'Price cannot be negative' })
-  @Type(() => Number)
-  price: number;
+  @IsString({ message: 'Price must be a string' })
+  @Matches(/^\d+(\.\d{1,12})?$/, {
+    message:
+      'Price must be a valid positive number with up to 12 decimal places',
+  })
+  price: string;
 }
